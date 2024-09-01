@@ -1,0 +1,142 @@
+\PassOptionsToPackage{table}{xcolor}
+\documentclass[pdf]{beamer}
+\mode<presentation>{\usetheme{Dresden}}
+\usepackage{lmodern}
+\usepackage[normalem]{ulem}
+\usepackage{amsmath,textcomp,amssymb,geometry,graphicx,listings,array,color,amsthm}
+
+\usepackage[noend]{algpseudocode}
+
+\usepackage{tikz}
+\usepackage{multicol}
+\usetikzlibrary{shapes,snakes}
+\usetikzlibrary{positioning}
+\usetikzlibrary{arrows}
+\usetikzlibrary{fit}
+\usetikzlibrary{math}
+
+%% For on-slide alerting of nodes
+\tikzstyle{alert} = [text=black, fill=blue!20, draw=black]
+\setbeamercolor{alerted text}{fg=blue}
+\tikzset{alerton/.code args={<#1>}{%
+  \only<#1>{\pgfkeysalso{alert}} % \pgfkeysalso doesn't change the path
+}}
+
+%% utils for removing uninteresting sections from the navbar
+%% https://tex.stackexchange.com/questions/317774/hide-section-from-sidebar
+\makeatletter
+\let\beamer@writeslidentry@miniframeson=\beamer@writeslidentry%
+\def\beamer@writeslidentry@miniframesoff{%
+  \expandafter\beamer@ifempty\expandafter{\beamer@framestartpage}{}% does not happen normally
+  {%else
+    % removed \addtocontents commands
+    \clearpage\beamer@notesactions%
+  }
+}
+\newcommand*{\miniframeson}{\let\beamer@writeslidentry=\beamer@writeslidentry@miniframeson}
+\newcommand*{\miniframesoff}{\let\beamer@writeslidentry=\beamer@writeslidentry@miniframesoff}
+\makeatother
+
+%% preamble
+\title{Chebyshev Picard Iteration}
+\subtitle{Fixed Point IVP Integration}
+\author{A.C.}
+\date{\today}
+
+\AtBeginSection[]
+{
+  \miniframesoff
+  \begin{frame}{Outline}
+    \tableofcontents[currentsection,hideothersubsections]
+  \end{frame}
+  \miniframeson
+}
+
+\definecolor{darkred}{rgb}{0.7,0,0}
+\definecolor{darkgreen}{rgb}{0,0.5,0}
+\definecolor{darkblue}{rgb}{0,0,0.5}
+\definecolor{darkpurple}{rgb}{0.4, 0.0, 0.4}
+
+%% Code font settings
+\lstset{
+  showstringspaces=false,
+  basicstyle=\scriptsize\ttfamily,
+  commentstyle=\color{darkred},
+  stringstyle=\color{darkgreen},
+  keywordstyle=\bfseries\color{darkpurple},
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Start of Actual slides %
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\section{Chebyshev Polynomials}
+
+\subsection{Construction}
+
+\begin{frame}{Starting Point}
+
+  Consider:
+  
+  \[ \cos n \theta \]
+
+  How does this relate to $\cos \theta$?
+
+  \pause 
+  \[ n = 0 \rightarrow 1 \]
+  \[ n = 1 \rightarrow \cos \theta \]
+  
+\end{frame}
+
+\begin{frame}{Euler's Formula}
+
+  \[ e^{i\theta} = \cos \theta + i \sin \theta \]
+
+  \pause
+  
+  \[ \cos \theta = \frac{1}{2} \left( e^{i\theta} + ie^{-i\theta} \right) \]
+
+  
+\end{frame}
+
+\begin{frame}{$n+1$}
+
+  % THIS IS WRONG, WRONG, WRONG. Re-work it with pencil and paper, then fix.
+\begin{align*}
+  \cos (n+1) \theta &= \frac{1}{2} \left( e^{i(n+1)\theta} + ie^{-i(n+1)\theta} \right)\\
+                    &= \frac{1}{2} \left( e^{in\theta}e^{i\theta} + ie^{-in\theta}e^{-i\theta} \right)\\
+                    &= \frac{1}{2} \left( (\cos n \theta + i \sin n \theta)(\cos \theta + i \sin \theta) + (\cos n \theta - i \sin n \theta)(\cos \theta - i \sin \theta) \right)\\
+                    &= \frac{1}{2} \left( \cos n \theta \cos \theta - \sin n \theta \sin \theta + \cos n \theta \cos \theta + \sin n \theta \sin \theta \right)\\
+                    &= \frac{1}{2} \left( \cos n \theta \cos \theta + \cos n \theta \cos \theta \right)\\
+                    &= \cos n \theta \cos \theta
+                    &= xT_n
+\end{align*}
+\end{frame}
+
+\begin{frame}{Recurrence}
+
+Therefore for $T_k(\cos \theta) := \cos k \theta$ we have
+
+\begin{align*}
+  T_0 &= 1\\
+  T_1 &= \cos \theta\\
+  T_n &= 2 \cos \theta T_n - T_{n-1}\\
+\end{align*}
+
+Defines a series of polynomials of increasing degree. A basis for polynomials over $\cos \theta$.
+
+\end{frame}
+
+
+\subsection{Interesting Properties}
+
+\begin{frame}{TODO}
+TODO
+\end{frame}
+
+
+\end{document}
