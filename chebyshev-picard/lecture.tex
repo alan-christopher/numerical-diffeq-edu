@@ -4,6 +4,7 @@
 \usepackage{lmodern}
 \usepackage[normalem]{ulem}
 \usepackage{amsmath,textcomp,amssymb,geometry,graphicx,listings,array,color,amsthm}
+\usepackage{pgfplots}
 
 \usepackage[noend]{algpseudocode}
 
@@ -76,67 +77,261 @@
 
 \section{Chebyshev Polynomials}
 
-\subsection{Construction}
+\subsection{Definition and Recurrence}
 
 \begin{frame}{Starting Point}
 
   Consider:
-  
+   
   \[ \cos n \theta \]
 
   How does this relate to $\cos \theta$?
-
-  \pause 
-  \[ n = 0 \rightarrow 1 \]
-  \[ n = 1 \rightarrow \cos \theta \]
-  
-\end{frame}
-
-\begin{frame}{Euler's Formula}
-
-  \[ e^{i\theta} = \cos \theta + i \sin \theta \]
-
-  \pause
-  
-  \[ \cos \theta = \frac{1}{2} \left( e^{i\theta} + ie^{-i\theta} \right) \]
-
-  
 \end{frame}
 
 \begin{frame}{$n+1$}
 
-  % THIS IS WRONG, WRONG, WRONG. Re-work it with pencil and paper, then fix.
 \begin{align*}
-  \cos (n+1) \theta &= \frac{1}{2} \left( e^{i(n+1)\theta} + ie^{-i(n+1)\theta} \right)\\
-                    &= \frac{1}{2} \left( e^{in\theta}e^{i\theta} + ie^{-in\theta}e^{-i\theta} \right)\\
-                    &= \frac{1}{2} \left( (\cos n \theta + i \sin n \theta)(\cos \theta + i \sin \theta) + (\cos n \theta - i \sin n \theta)(\cos \theta - i \sin \theta) \right)\\
-                    &= \frac{1}{2} \left( \cos n \theta \cos \theta - \sin n \theta \sin \theta + \cos n \theta \cos \theta + \sin n \theta \sin \theta \right)\\
-                    &= \frac{1}{2} \left( \cos n \theta \cos \theta + \cos n \theta \cos \theta \right)\\
-                    &= \cos n \theta \cos \theta
-                    &= xT_n
+  \cos 0 &= 1\\
+  \cos \theta &= \cos \theta\\
+  \cos 2\theta &= 2\cos^2 \theta - 1\\
+   & \vdots\\
+  \cos (n+1)\theta &= 2 \cos \theta \cos n\theta - \cos (n-1)\theta\\
 \end{align*}
+
+See notes for proof.
+  
 \end{frame}
 
 \begin{frame}{Recurrence}
 
-Therefore for $T_k(\cos \theta) := \cos k \theta$ we have
+Let $T_n(\cos \theta) := \cos n \theta$ and $x := \cos \theta$ and observe the following recurrence
 
 \begin{align*}
   T_0 &= 1\\
-  T_1 &= \cos \theta\\
-  T_n &= 2 \cos \theta T_n - T_{n-1}\\
+  T_1 &= x\\
+  T_{n+1} &= 2xT_n - T_{n-1}\\
 \end{align*}
 
-Defines a series of polynomials of increasing degree. A basis for polynomials over $\cos \theta$.
+In closed form: $T_n(x) = \cos n \cos^{-1} x$
 
 \end{frame}
 
+\begin{frame}{Polynomial}
+  \[ T_{n+1} = 2xT_n - T_{n-1} \]
 
-\subsection{Interesting Properties}
+  $2x$ multiplier increases degree of each subsequent $T_n$ by exactly one.
+  Easy to see that $\{T_0, T_1, \ldots, T_n \}$ spans forms a basis set for
+  $\mathbb{P}_n$.\newline
 
-\begin{frame}{TODO}
-TODO
+  More directly, we can find coefficients $c_0, c_1, \ldots, c_n$ for any
+  polynomial $p_n$ s.t.
+
+  \[ p_n = c_0T_0 + c_1T_1 + \cdots + c_nT_n \]
 \end{frame}
 
+\begin{frame}{Domain}
+  The recurrence form of Chebyshev polynomials (of the first kind) applies
+  across the whole real line.\newline
+
+  The cosine form requires we restrict ourselves to the interval $[-1,1]$.\newline
+
+  We will take it as a given that we are in the range $[-1,1]$ throughout.
+\end{frame}
+
+\subsection{Integration}
+
+\begin{frame}{Integral}
+  \begin{center}
+    \[ \int T_k = \frac{1}{k+1} T_{k+1} - \frac{1}{k-1} T_{k-1} + C\]
+  \end{center}
+
+  See notes for proof.
+\end{frame}
+
+
+\begin{frame}{Key Result}
+  If we have a polynomial in Chebyshev-space, then we can integrate it easily
+  without changing basis (e.g. to the ``usual'' basis $1, x, x^2,\ldots$, where
+  integration is even simpler).
+\end{frame}
+
+\subsection{Interpolation and Orthogonality}
+
+\begin{frame}{Lagrange Interpolation}
+  Recall: a polynomial of degree $n$ is uniquely determined by $n+1$ points $(x_0, y_0),\ldots,(x_n, y_n)$.\newline
+
+  Langrange interpolation is a standard method for constructing such a polynomial:
+  \[ p_n(x) = \sum_i y_i \prod_{j \neq i} \frac{x - x_j}{x_i - x_j} \]
+
+  What if we would like the polynomial in terms of the Chebyshev basis?
+\end{frame}
+
+
+\begin{frame}{System of Equations}
+  Given points $(x_0, y_0),\ldots,(x_n, y_n)$, can write and solve a system of equations
+
+  \begin{align*}
+  c_0T_0(x_0) + c_1T_1(x_0) + \cdots + c_nT_n(x_0) &= y_0\\
+  c_0T_0(x_1) + c_1T_1(x_1) + \cdots + c_nT_n(x_1) &= y_1\\
+   & \vdots\\
+  c_0T_0(x_n) + c_1T_1(x_n) + \cdots + c_nT_n(x_n) &= y_n\\
+  \end{align*}
+
+  Fairly heavyweight computation, would prefer a cheaper solution.
+\end{frame}
+
+\begin{frame}{Orthogonality}
+  Define
+
+  \[ \langle f, g \rangle = \int_{-1}^1 \frac{1}{\sqrt{1-x^2}}fg \,dx \]
+
+  It can be shown that
+  
+  \[ \langle T_j, T_k \rangle = \left\{
+    \begin{array}{ll}
+        0, & \text{if } j \neq k\\
+        \pi, & \text{if } j = k = 0\\
+        \frac{\pi}{2}, & \text{if } j = k > 0
+    \end{array}
+  \right.
+  \]
+
+  That is, Chebyshev polynomials form an \emph{orthogonal} basis
+  over $\mathbb{P}_n$. See notes for proof.
+\end{frame}
+
+
+\begin{frame}{Inner Product Interpolation}
+  Consider the equation
+
+  \[ p_n = c_0T_0 + c_1T_1 + \cdots + c_nT_n \]
+
+  Take the inner product against $T_k$ on each side to see
+
+  \[ \langle p_n, T_k \rangle = c_k \langle T_k, T_k \rangle \]
+
+  If we can compute $\langle p_n, T_k \rangle$ efficiently, then we have a fast
+  procedure for acquiring the polynomial in Chebyshev form.
+\end{frame}
+
+\begin{frame}{Quadrature}
+  It is far from obvious but Lobatto quadrature at
+  Chebyshev nodes $x_j = \cos \frac{j\pi}{n}$ computes $\langle p_n, T_k \rangle$ exactly,
+  giving us the formula
+
+  \[ \langle p_n, T_k \rangle = \frac{\pi}{n} \sideset{}{''}\sum_j p_n\left(\cos \frac{j\pi}{n}\right) T_k\left(\cos \frac{j\pi}{n}\right) \]
+
+  See notes for proof.
+\end{frame}
+
+\begin{frame}{Key Result}
+  If we choose to interpolate a function $f$ at $n+1$ Chebyshev nodes, then the
+  Chebyshev form of the resulting polynomial may be efficiently computed through
+  simple sums.
+\end{frame}
+
+\subsection{Approximation Error}
+
+\begin{frame}{Weierstrass Approximation Theorem}
+  Given any smooth function $f$ on a compact interval $[a,b]$ and an arbitrary
+  error tolerance $\epsilon$, there exists a polynomial $p$ s.t.
+
+  \[ ||p - f||_\infty \leq \epsilon \]
+
+  That is, we may approximate any smooth function arbitrarily well on a finite interval
+  with \emph{some} polynomial.\newline
+
+  It seems a fair guess that interpolating $f$ at a large number of points should yield
+  such a polynomial.
+\end{frame}
+
+\begin{frame}{Runge's Phenomenon}
+
+  Let us consider the behavior of polynomial interpolants on the following function
+
+  \[ y = \frac{1}{1 + 25x^2} \]
+
+  We'll do the obvious thing, and select equally spaced points for evaluation.
+  
+\end{frame}
+
+\begin{frame}{Runge's Phenomenon}
+  \begin{center}
+    \begin{tikzpicture}
+      \begin{axis}[width=7cm,title=\only<1>{$\text{deg}=4$}\only<2>{$\text{deg}=8$}\only<3>{$\text{deg}=16$}]
+        \addplot[
+        thick,
+        domain=-1:1,
+        samples=200,
+        ] { 1/ (1 + 25*x^2) };
+        % coefficients for following curves determined via np.polyfit.
+        \only<1>{\addplot[
+          blue,
+          thick,
+        domain=-1:1,
+        samples=200,
+        ] { 3.31564987 * x^4 + 4.05071683e-15 * x^3 -4.27718833e+00 * x^2 + + 3.88051882e-15 * x + 1};}
+        \only<2>{\addplot[
+          blue,
+          thick,
+          domain=-1:1,
+          samples=200,
+        ] { 5.36893006e+01*x^8 + 5.97596957e-14*x^7 + -1.02815011e+02*x^6 + -3.60400394e-14*x^5 + 6.13672061e+01*x^4 + -7.10181675e-15*x^3 + -1.32030345e+01*x^2 +  1.92366252e-15*x + 1.00000000e+00};}
+        \only<3>{\addplot[
+          blue,
+          thick,
+          domain=-1:1,
+          samples=400,
+        ] { 1.54030842e+04*x^16 + 2.47926598e-07*x^15 + -4.97134541e+04*x^14 + -7.80885918e-07*x^13 + 6.37437745e+04*x^12 + 9.62926370e-07*x^11 + -4.18699684e+04*x^10 + -5.92217058e-07*x^9 + 1.52067467e+04*x^8 +  1.91118306e-07*x^7 + -3.10035239e+03*x^6 + -3.09300688e-08*x^5 + 3.51983948e+02*x^4 +  2.11531302e-09*x^3 + -2.27759274e+01*x^2 + -3.47601417e-11*x + 1.00000000e+00};}
+      \end{axis}
+    \end{tikzpicture}
+  \end{center}
+\end{frame}
+
+\begin{frame}{Lagrange Error Formula}
+  Let $f$ be a smooth function on a compact interval, and $p_n$ be the
+  polynomial interpolating it at points $x_0, x_1, \ldots, x_n$. Then
+
+  \[ f(x) = p_n(x) + \frac{f^{(n+1)}(\eta_x)}{(n+1)!} \prod (x-x_j) \]
+
+  See notes for proof.
+\end{frame}
+
+\begin{frame}{Controlling Approximation Error}
+  Our error term has two components -- a derivative part, and a product
+  part.\newline
+
+  It is difficult to fathom a mechanism to control the former, but
+  the latter should be directly impacted by our choice of interpolating points.
+\end{frame}
+
+
+\begin{frame}{Chebyshev Node Error}
+  Set $x_0,\ldots,x_n$ to the zeros of the $n$-th Chebyshev polynomial.
+  We observe the following bounds on the ``product'' component of the
+  Lagrange error, which no other choice of nodes can beat.
+
+  \[ \max_{[-1,1]} \prod(x-x_j) = \frac{1}{2^n}\]
+
+  The extrema of the $n$-th Chebyshev polynomial are actually of more practical
+  interest to us, but the result for them is the same, up to a constant
+  factor. See notes for proof.\end{frame}
+
+\begin{frame}{Key Result}
+  Interpolating through Chebyshev nodes minimizes a key term underpinning
+  $L_\infty$ error.\newline
+
+  We have not shown that Chebyshev nodes are always best (in fact, there exists no
+  choice of nodes with is best for all polynomial-approximable functions), but
+  it is very good, very often.
+\end{frame}
+
+\section{Picard Iteration}
+\subsection{Picard Iteration}
+
+\section{Chebyshev Picard Iteration}
+\subsection{Procedure}
+
+\subsection{Interesting Features}
 
 \end{document}
